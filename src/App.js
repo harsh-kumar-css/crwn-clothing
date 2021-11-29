@@ -1,5 +1,5 @@
 import "./App.css";
-import { Switch, Route } from "react-router-dom";
+import { Switch, Route, Redirect } from "react-router-dom";
 import Homepage from "./pages/homepage/homepage.component";
 import ShopPage from "./pages/shop/shop.component";
 import Header from "./components/header/header.component";
@@ -7,7 +7,7 @@ import SignInAndSignUpPage from "./pages/sign-in-and-sign-up/sign-in-and-sign-up
 import { auth, createUserProfileDocument } from "./firebase/firebase.utils";
 import React from "react";
 import { connect } from "react-redux";
-import { setCurrentUser } from "./redux/user/user.action";
+import { setCurrentUser } from "./redux/user/user.actions";
 
 class App extends React.Component {
   unsubcribeFromAuth = null;
@@ -41,13 +41,25 @@ class App extends React.Component {
         <Header />
         <Switch>
           <Route exact path="/" component={Homepage} />
-          <Route exact path="/shop" component={ShopPage} />
-          <Route exact path="/signin" component={SignInAndSignUpPage} />
+          <Route path="/shop" component={ShopPage} />
+          <Route
+            exact
+            path="/signin"
+            render={() =>
+              this.props.currentUser ? (
+                <Redirect to="/" />
+              ) : (
+                <SignInAndSignUpPage />
+              )
+            }
+          />
         </Switch>
       </div>
     );
   }
 }
+
+const mapStateToProps = ({ user }) => ({ currentUser: user.currentUser });
 
 // for invoking the actions when we update something and setting it to the new value, as we have passed this function into the connect
 // function so this can be used as props into the App component
@@ -55,7 +67,7 @@ const mapDispatchToProps = (dispatch) => ({
   setCurrentUser: (user) => dispatch(setCurrentUser(user)),
 });
 
-export default connect(null, mapDispatchToProps)(App); // the first argument in the first function call it is the state, which is null here
+export default connect(mapStateToProps, mapDispatchToProps)(App); // the first argument in the first function call it is the state, which is null here
 // because we dont need it here, and second here is the mapDispatchToProps which is passed
 //as a argument to the App component which is used to trigger an action when we make changes
 // into our component

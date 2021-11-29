@@ -40,7 +40,7 @@ export const createUserProfileDocument = async (userAuth, additonalData) => {
 
 firebase.initializeApp(config);
 
-//configuring googe sign in
+//configuring google sign in
 
 export const auth = firebase.auth();
 export const firestore = firebase.firestore();
